@@ -3,6 +3,7 @@
 import argparse
 import json
 import urllib.request
+from urllib.error import HTTPError, URLError
 
 
 def parse_args():
@@ -27,8 +28,13 @@ def main():
         method="POST",
     )
 
-    with urllib.request.urlopen(request, timeout=300) as response:
-        audio_bytes = response.read()
+    try:
+        with urllib.request.urlopen(request, timeout=300) as response:
+            audio_bytes = response.read()
+    except HTTPError as exc:
+        raise SystemExit(f"Request failed with HTTP {exc.code}: {exc.reason}") from exc
+    except URLError as exc:
+        raise SystemExit(f"Could not reach inference server: {exc.reason}") from exc
 
     with open(args.output, "wb") as output_file:
         output_file.write(audio_bytes)

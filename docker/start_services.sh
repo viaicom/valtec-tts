@@ -20,6 +20,15 @@ python demo_gradio.py \
 GRADIO_PID=$!
 
 trap 'kill "$API_PID" "$GRADIO_PID"' SIGINT SIGTERM
-wait -n
-kill "$API_PID" "$GRADIO_PID" || true
+set +e
+wait -n "$API_PID" "$GRADIO_PID"
+EXIT_STATUS=$?
+set -e
+if ! kill -0 "$API_PID" 2>/dev/null; then
+  echo "API service exited (first-exit status: ${EXIT_STATUS})."
+fi
+if ! kill -0 "$GRADIO_PID" 2>/dev/null; then
+  echo "Gradio service exited (first-exit status: ${EXIT_STATUS})."
+fi
+kill "$API_PID" "$GRADIO_PID" 2>/dev/null || true
 wait
