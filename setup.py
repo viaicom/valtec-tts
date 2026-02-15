@@ -60,6 +60,8 @@ setup(
         "huggingface_hub>=0.20.0",
         "eng-to-ipa>=0.0.2",
         "gradio>=5.0.0",
+        "fastapi>=0.116.0",
+        "uvicorn>=0.35.0",
     ],
     extras_require={
         "play": ["sounddevice>=0.4.0"],

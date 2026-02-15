@@ -175,6 +175,31 @@ python app_zeroshot.py
 python app.py
 ```
 
+### Docker (uv + 2 exposed ports)
+
+```bash
+docker build -t valtec-tts .
+docker run --rm -p 7860:7860 -p 8000:8000 valtec-tts
+```
+
+- Gradio UI: `http://localhost:7860`
+- Pure inference API (WAV response): `POST http://localhost:8000/synthesize`
+
+Example API call:
+
+```bash
+curl -X POST http://localhost:8000/synthesize \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Xin chào từ Valtec TTS","speaker":"NF"}' \
+  --output output.wav
+```
+
+Python client example:
+
+```bash
+python examples/python_client.py --text "Xin chào các bạn" --output output.wav
+```
+
 ---
 
 ## 🎤 Zero-Shot Voice Cloning — Details
