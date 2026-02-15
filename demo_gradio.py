@@ -258,9 +258,26 @@ def main():
     if checkpoint_path is None:
         checkpoint_path = find_latest_checkpoint(args.model_dir, "G")
         if checkpoint_path is None:
-            print(f"❌ Error: No checkpoint found in {args.model_dir}")
-            print("Please specify --checkpoint or --model_dir")
-            return
+            print(f"No checkpoint found in {args.model_dir}")
+            print("Attempting to download from Hugging Face...")
+            try:
+                from huggingface_hub import snapshot_download
+
+                if os.name == "nt":
+                    cache_base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+                else:
+                    cache_base = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+                model_dir = cache_base / "valtec_tts" / "models" / "vits-vietnamese"
+                model_dir.mkdir(parents=True, exist_ok=True)
+                snapshot_download(repo_id="valtecAI-team/valtec-tts-pretrained", local_dir=str(model_dir))
+                args.model_dir = str(model_dir)
+                checkpoint_path = find_latest_checkpoint(args.model_dir, "G")
+            except Exception as e:
+                print(f"❌ Error downloading model: {e}")
+                return
+            if checkpoint_path is None:
+                print("❌ Error: could not find checkpoint after download")
+                return
         print(f"✅ Using checkpoint: {checkpoint_path}")
     
     # Find config
